@@ -19,6 +19,8 @@ covers the Current Weather and 5-Day Forecast endpoints used here.
 3. Go to the **Configuration** tab and fill in:
    - `owm_api_key`: your OpenWeatherMap API key
    - `units`: `imperial` (°F) or `metric` (°C)
+   - `location` *(optional)*: zip code (e.g. `84101`) or city/state (e.g. `Salt Lake City, UT`).
+     Leave blank to use the location set in Home Assistant automatically.
 4. Start the addon.
 
 ## Connecting to Home Assistant

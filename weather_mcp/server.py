@@ -44,16 +44,17 @@ API_KEY: str = options.get("owm_api_key", "").strip()
 UNITS: str = options.get("units", "imperial")
 UNIT_WORD: str = "Fahrenheit" if UNITS == "imperial" else "Celsius"
 UNIT_ABBR: str = "F" if UNITS == "imperial" else "C"
+MANUAL_LOCATION: str = options.get("location", "").strip()
 
 
 # ---------------------------------------------------------------------------
-# Pull lat/lon from HA supervisor API (called lazily per request)
+# Location helpers
 # ---------------------------------------------------------------------------
 
 def get_ha_location() -> tuple[float | None, float | None]:
     token = os.environ.get("SUPERVISOR_TOKEN", "")
     if not token:
-        log.warning("SUPERVISOR_TOKEN not set — location unavailable.")
+        log.warning("SUPERVISOR_TOKEN not set — skipping HA location.")
         return None, None
     try:
         r = httpx.get(
@@ -71,6 +72,49 @@ def get_ha_location() -> tuple[float | None, float | None]:
     except Exception as e:
         log.warning(f"Could not fetch HA location: {e}")
         return None, None
+
+
+def geocode_manual_location(location: str) -> tuple[float | None, float | None]:
+    """Resolve a zip code or city/state string to lat/lon via OWM Geocoding API."""
+    if not API_KEY:
+        return None, None
+    try:
+        # Zip codes are all digits (optionally with a country suffix like "84101,US")
+        if location.split(",")[0].strip().isdigit():
+            r = httpx.get(
+                "https://api.openweathermap.org/geo/1.0/zip",
+                params={"zip": location, "appid": API_KEY},
+                timeout=5,
+            )
+        else:
+            r = httpx.get(
+                "https://api.openweathermap.org/geo/1.0/direct",
+                params={"q": location, "limit": 1, "appid": API_KEY},
+                timeout=5,
+            )
+        r.raise_for_status()
+        data = r.json()
+        if isinstance(data, list):
+            data = data[0] if data else {}
+        lat = data.get("lat")
+        lon = data.get("lon")
+        if lat is not None and lon is not None:
+            log.info(f"Geocoded '{location}' to {lat}, {lon}")
+        return lat, lon
+    except Exception as e:
+        log.warning(f"Could not geocode '{location}': {e}")
+        return None, None
+
+
+def resolve_location() -> tuple[float | None, float | None]:
+    """Try HA auto-detect first, fall back to the manually configured location."""
+    lat, lon = get_ha_location()
+    if lat is not None and lon is not None:
+        return lat, lon
+    if MANUAL_LOCATION:
+        log.info(f"HA location unavailable — trying manual location: {MANUAL_LOCATION}")
+        return geocode_manual_location(MANUAL_LOCATION)
+    return None, None
 
 
 # ---------------------------------------------------------------------------
@@ -140,11 +184,12 @@ def get_weather() -> str:
             "Please enter your OpenWeatherMap API key in the addon configuration."
         )
 
-    lat, lon = get_ha_location()
+    lat, lon = resolve_location()
     if lat is None or lon is None:
         return (
             "Weather is unavailable. "
-            "Could not determine your location from Home Assistant."
+            "Could not determine your location. "
+            "Please set a zip code or city in the addon Configuration tab."
         )
 
     params = {
