@@ -125,7 +125,7 @@ def spoken_condition(raw: str) -> str:
 # MCP server
 # ---------------------------------------------------------------------------
 
-mcp = FastMCP("Weather MCP Server")
+mcp = FastMCP("Weather MCP Server", host="0.0.0.0", port=PORT)
 
 
 @mcp.tool()
@@ -235,4 +235,4 @@ if __name__ == "__main__":
         )
 
     log.info(f"Starting Weather MCP SSE server on port {PORT}...")
-    mcp.run(transport="sse", host="0.0.0.0", port=PORT)
+    mcp.run(transport="sse")
