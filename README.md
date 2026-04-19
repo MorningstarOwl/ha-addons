@@ -10,6 +10,10 @@ A voice-friendly MCP server for Home Assistant's AI assistant integration.
 Uses OpenWeatherMap to deliver current conditions and a 3-day forecast as
 plain spoken English — no markdown, no symbols.
 
+Location is read automatically from Home Assistant. If that fails, you can
+set a **zip code** (e.g. `84101`) in the addon Configuration tab as a fallback.
+City/state strings are not reliably supported by the OpenWeatherMap geocoding API.
+
 See [weather_mcp/DOCS.md](weather_mcp/DOCS.md) for full setup instructions.
 
 ## Installation
