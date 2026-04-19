@@ -1,0 +1,33 @@
+name: Weather MCP
+description: >
+  Voice-friendly weather MCP server using OpenWeatherMap.
+  Exposes an SSE endpoint for Home Assistant's MCP integration,
+  returning forecasts as plain spoken English — no markdown, no symbols.
+version: "1.0.0"
+slug: weather_mcp
+url: https://github.com/MorningstarOwl/ha-addons/tree/main/weather_mcp
+init: false
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+
+# Expose SSE endpoint on the LAN
+ports:
+  8765/tcp: 8765
+ports_description:
+  8765/tcp: "MCP SSE endpoint — configure HA with http://homeassistant.local:8765/sse"
+
+# Grants SUPERVISOR_TOKEN so the server can read HA's lat/lon automatically
+hassio_api: true
+
+# User-configurable options (shown in the addon Configuration tab)
+options:
+  owm_api_key: ""
+  units: "imperial"
+
+schema:
+  owm_api_key: str
+  units: list(imperial|metric)
