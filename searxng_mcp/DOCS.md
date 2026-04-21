@@ -1,9 +1,9 @@
-# SearXNG MCP
+# Web Search MCP
 
-An all-in-one MCP search addon for Home Assistant. Bundles SearXNG internally —
-no external search server required. Exposes two MCP tools — `search` (web) and
-`search_news` — over SSE, returning results as plain spoken English with no
-markdown or symbols, making it ideal for Assist and TTS pipelines.
+An MCP search addon for Home Assistant. Uses DuckDuckGo to deliver web and
+news search as spoken English — no external server, no configuration required.
+Exposes two tools — `search` (web) and `search_news` — over SSE, ideal for
+Assist and TTS pipelines.
 
 ---
 
@@ -13,11 +13,9 @@ markdown or symbols, making it ideal for Assist and TTS pipelines.
    **Settings → Add-ons → Add-on Store → ⋮ → Repositories**
    Paste: `https://github.com/MorningstarOwl/ha-addons`
 
-2. Install **SearXNG MCP** from the store.
+2. Install **Web Search MCP** from the store.
 
-3. Go to the **Configuration** tab and adjust options if desired (defaults work out of the box).
-
-4. Start the addon.
+3. Start the addon. No configuration required — it works out of the box.
 
 ---
 
@@ -27,7 +25,6 @@ markdown or symbols, making it ideal for Assist and TTS pipelines.
 |--------|---------|-------------|
 | `max_results` | `5` | Number of results to include in each response (1–10). |
 | `safe_search` | `0` | Safe search level: `0` = off, `1` = moderate, `2` = strict. |
-| `language` | `en` | Search language/locale. |
 
 ---
 
@@ -54,7 +51,7 @@ The integration exposes two tools your AI assistant can call:
 | Tool | Description |
 |------|-------------|
 | `search` | General web search |
-| `search_news` | News-category search |
+| `search_news` | News search |
 
 ---
 
@@ -73,19 +70,11 @@ The integration exposes two tools your AI assistant can call:
 
 ## Troubleshooting
 
-### Searches return "still starting up"
+### Searches return "temporarily unavailable"
 
-The bundled SearXNG instance takes a few seconds to initialize on first start.
-Wait a moment and try again. If it persists, check the addon log tab for errors.
-
-### Searches succeed but return no results
-
-SearXNG relies on upstream search engines (Google, Bing, DuckDuckGo, etc.).
-If all engines are temporarily unreachable or rate-limiting requests, results
-may be empty. Try again after a short wait.
+DuckDuckGo occasionally rate-limits requests. Wait a moment and try again.
+If it persists, check the addon log tab for details.
 
 ### The addon won't start
 
-Check the addon log tab for Python errors. On lower-powered hardware, the
-bundled SearXNG instance may need a moment longer to initialize — this is
-normal on first start after install.
+Check the addon log tab for Python errors.

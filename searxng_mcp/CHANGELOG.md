@@ -1,15 +1,21 @@
 # Changelog
 
-## 1.1.0 — Bundled SearXNG (no external dependencies)
+## 1.2.0 — Switch to DuckDuckGo
 
-- SearXNG is now bundled inside the addon container — no separate search server required
-- Removed `searxng_url` configuration option
-- Simplified DOCS: no SearXNG setup or whitelist steps needed
+- Replaced bundled SearXNG with the `duckduckgo-search` library
+- No external server, no build dependencies, no startup process management
+- Removed `searxng_url` and `language` configuration options
+- Renamed addon to "Web Search MCP"
+- Dockerfile reduced to 4 lines
+
+## 1.1.0 — Bundled SearXNG (yanked)
+
+- Attempted to bundle SearXNG inside the container
+- Removed in favour of 1.2.0 due to build complexity
 
 ## 1.0.0 — Initial release
 
 - `search` tool: general web search via SearXNG JSON API
 - `search_news` tool: news category search
 - Spoken-English result formatting with configurable result count
-- Descriptive error messages for common failure modes (403, connection error)
 - Configurable safe search level and language
