@@ -1,10 +1,13 @@
 FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libxml2 libxslt1.1 \
+    git libxml2 libxslt1.1 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir searxng "mcp[cli]" httpx
+RUN pip install --no-cache-dir \
+    "git+https://github.com/searxng/searxng.git" \
+    "mcp[cli]" \
+    httpx
 
 RUN mkdir -p /etc/searxng
 COPY settings.yml /etc/searxng/settings.yml
