@@ -14,6 +14,7 @@ import os
 import logging
 from collections import defaultdict, Counter
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -45,6 +46,15 @@ UNITS: str = options.get("units", "imperial")
 UNIT_WORD: str = "Fahrenheit" if UNITS == "imperial" else "Celsius"
 UNIT_ABBR: str = "F" if UNITS == "imperial" else "C"
 MANUAL_LOCATION: str = options.get("location", "").strip()
+
+# Timezone — read from options, fall back to America/Denver
+_tz_name: str = options.get("timezone", "America/Denver").strip() or "America/Denver"
+try:
+    LOCAL_TZ = ZoneInfo(_tz_name)
+    log.info(f"Using timezone: {_tz_name}")
+except ZoneInfoNotFoundError:
+    log.warning(f"Unknown timezone '{_tz_name}', falling back to America/Denver")
+    LOCAL_TZ = ZoneInfo("America/Denver")
 
 
 # ---------------------------------------------------------------------------
@@ -236,21 +246,36 @@ def get_weather() -> str:
         f"and winds are {wind_speed} {wind_unit}."
     )
 
-    # ── Aggregate forecast into daily buckets ───────────────────────────────
-    today = datetime.now(timezone.utc).date()
+    # ── Determine today's local date using the configured timezone ──────────
+    today = datetime.now(LOCAL_TZ).date()
+
+    # ── Aggregate forecast slots into daily buckets (today included) ────────
     daily: dict = defaultdict(lambda: {"highs": [], "lows": [], "conds": []})
 
     for slot in forecast.get("list", []):
-        slot_date = datetime.fromtimestamp(slot["dt"], tz=timezone.utc).date()
-        if slot_date == today:
-            continue  # today is covered by current conditions
+        # Convert slot timestamp to local time before bucketing by date
+        slot_date = datetime.fromtimestamp(slot["dt"], tz=LOCAL_TZ).date()
         daily[slot_date]["highs"].append(slot["main"]["temp_max"])
         daily[slot_date]["lows"].append(slot["main"]["temp_min"])
         daily[slot_date]["conds"].append(slot["weather"][0]["description"])
 
-    # ── Build forecast sentences ────────────────────────────────────────────
+    # ── Today's forecast high/low ───────────────────────────────────────────
+    today_str = ""
+    if today in daily and daily[today]["highs"]:
+        d = daily[today]
+        today_high = round(max(d["highs"]))
+        today_low  = round(min(d["lows"]))
+        top_cond   = Counter(d["conds"]).most_common(1)[0][0]
+        today_cond = spoken_condition(top_cond)
+        today_str = (
+            f"Today's forecast: {today_cond}, "
+            f"high of {today_high}, low of {today_low}. "
+        )
+
+    # ── Build the next 3 days forecast sentences ────────────────────────────
     forecast_parts: list[str] = []
-    for date in sorted(daily.keys())[:3]:
+    future_dates = [d for d in sorted(daily.keys()) if d > today]
+    for date in future_dates[:3]:
         d = daily[date]
         high = round(max(d["highs"]))
         low  = round(min(d["lows"]))
@@ -263,9 +288,9 @@ def get_weather() -> str:
 
     if forecast_parts:
         forecast_str = " ".join(forecast_parts)
-        return f"{current_str} Looking ahead — {forecast_str}"
+        return f"{today_str}{current_str} Looking ahead — {forecast_str}"
     else:
-        return current_str
+        return f"{today_str}{current_str}"
 
 
 # ---------------------------------------------------------------------------
