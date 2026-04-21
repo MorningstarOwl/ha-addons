@@ -16,6 +16,20 @@ City/state strings are not reliably supported by the OpenWeatherMap geocoding AP
 
 See [weather_mcp/DOCS.md](weather_mcp/DOCS.md) for full setup instructions.
 
+### SearXNG MCP
+
+A bridge addon that connects Home Assistant's AI assistant to a self-hosted
+[SearXNG](https://searxng.github.io/searxng/) instance.
+Exposes `search` (web) and `search_news` tools over MCP SSE,
+returning results as plain spoken English — no markdown, no symbols.
+
+Requires a running SearXNG instance with the JSON format enabled and
+the Home Assistant host IP whitelisted in SearXNG's limiter config.
+
+See [searxng_mcp/DOCS.md](searxng_mcp/DOCS.md) for full setup instructions.
+
+---
+
 ## Installation
 
 In Home Assistant go to:

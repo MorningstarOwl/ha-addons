@@ -1,0 +1,33 @@
+name: SearXNG MCP
+description: >
+  MCP bridge to a self-hosted SearXNG instance.
+  Exposes web search and news search as MCP tools over SSE,
+  returning results as plain spoken English — suitable for
+  Home Assistant Assist and TTS voice pipelines.
+version: "1.0.0"
+slug: searxng_mcp
+url: https://github.com/MorningstarOwl/ha-addons/tree/main/searxng_mcp
+init: false
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+
+ports:
+  8766/tcp: 8766
+ports_description:
+  8766/tcp: "MCP SSE endpoint — configure HA with http://homeassistant.local:8766/sse"
+
+options:
+  searxng_url: "http://192.168.1.212:8888"
+  max_results: 5
+  safe_search: 0
+  language: "en"
+
+schema:
+  searxng_url: str
+  max_results: int(1,10)
+  safe_search: list(0|1|2)
+  language: str
