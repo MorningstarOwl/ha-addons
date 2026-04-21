@@ -3,7 +3,7 @@ description: >
   Voice-friendly weather MCP server using OpenWeatherMap.
   Exposes an SSE endpoint for Home Assistant's MCP integration,
   returning forecasts as plain spoken English — no markdown, no symbols.
-version: "1.1.0"
+version: "1.2.0"
 slug: weather_mcp
 url: https://github.com/MorningstarOwl/ha-addons/tree/main/weather_mcp
 init: false
@@ -28,8 +28,31 @@ options:
   owm_api_key: ""
   units: "imperial"
   location: ""
+  timezone: "America/Denver"
 
 schema:
   owm_api_key: str
   units: list(imperial|metric)
   location: str
+  timezone: list(
+    America/New_York|America/Chicago|America/Denver|America/Los_Angeles|
+    America/Phoenix|America/Anchorage|America/Juneau|Pacific/Honolulu|
+    America/Indiana/Indianapolis|America/Detroit|America/Boise|
+    America/Toronto|America/Vancouver|America/Edmonton|America/Winnipeg|
+    America/Halifax|America/St_Johns|America/Regina|
+    America/Mexico_City|America/Cancun|America/Monterrey|
+    America/Sao_Paulo|America/Argentina/Buenos_Aires|America/Santiago|
+    America/Bogota|America/Lima|America/Caracas|America/La_Paz|
+    Europe/London|Europe/Dublin|Europe/Lisbon|Europe/Paris|Europe/Berlin|
+    Europe/Rome|Europe/Madrid|Europe/Amsterdam|Europe/Warsaw|
+    Europe/Athens|Europe/Bucharest|Europe/Helsinki|Europe/Moscow|
+    Europe/Istanbul|
+    Africa/Casablanca|Africa/Lagos|Africa/Cairo|Africa/Nairobi|
+    Africa/Johannesburg|Africa/Accra|Africa/Addis_Ababa|
+    Asia/Jerusalem|Asia/Riyadh|Asia/Tehran|Asia/Dubai|Asia/Karachi|
+    Asia/Kolkata|Asia/Kathmandu|Asia/Colombo|Asia/Dhaka|Asia/Bangkok|
+    Asia/Jakarta|Asia/Singapore|Asia/Taipei|Asia/Shanghai|Asia/Tokyo|
+    Asia/Seoul|Asia/Almaty|
+    Australia/Perth|Australia/Adelaide|Australia/Brisbane|
+    Australia/Melbourne|Australia/Sydney|
+    Pacific/Auckland|Pacific/Fiji|Pacific/Guam)
