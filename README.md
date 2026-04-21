@@ -21,7 +21,7 @@ See [weather_mcp/DOCS.md](weather_mcp/DOCS.md) for full setup instructions.
 An MCP search addon that uses DuckDuckGo to deliver web and news search
 as plain spoken English — no markdown, no symbols, no external dependencies.
 
-See [searxng_mcp/DOCS.md](searxng_mcp/DOCS.md) for full setup instructions.
+See [web_search_mcp/DOCS.md](web_search_mcp/DOCS.md) for full setup instructions.
 
 ---
 

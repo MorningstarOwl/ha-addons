@@ -5,8 +5,8 @@ description: >
   English — suitable for Home Assistant Assist and TTS voice pipelines.
   No external dependencies or configuration required.
 version: "1.2.0"
-slug: searxng_mcp
-url: https://github.com/MorningstarOwl/ha-addons/tree/main/searxng_mcp
+slug: web_search_mcp
+url: https://github.com/MorningstarOwl/ha-addons/tree/main/web_search_mcp
 init: false
 arch:
   - amd64
