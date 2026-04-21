@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 — Bundled SearXNG (no external dependencies)
+
+- SearXNG is now bundled inside the addon container — no separate search server required
+- Removed `searxng_url` configuration option
+- Simplified DOCS: no SearXNG setup or whitelist steps needed
+
 ## 1.0.0 — Initial release
 
 - `search` tool: general web search via SearXNG JSON API
