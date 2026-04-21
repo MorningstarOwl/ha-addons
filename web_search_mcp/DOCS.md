@@ -1,9 +1,9 @@
 # Web Search MCP
 
 An MCP search addon for Home Assistant. Uses DuckDuckGo to deliver web and
-news search as spoken English — no external server, no configuration required.
-Exposes two tools — `search` (web) and `search_news` — over SSE, ideal for
-Assist and TTS pipelines.
+news search as plain spoken English — no external server, no configuration
+required. Exposes two tools — `search` (web) and `search_news` — over SSE,
+ideal for Assist and TTS pipelines.
 
 ---
 
@@ -15,7 +15,9 @@ Assist and TTS pipelines.
 
 2. Install **Web Search MCP** from the store.
 
-3. Start the addon. No configuration required — it works out of the box.
+3. Optionally adjust settings in the **Configuration** tab (defaults work out of the box).
+
+4. Start the addon.
 
 ---
 
@@ -57,14 +59,14 @@ The integration exposes two tools your AI assistant can call:
 
 ## Example Output
 
-**Prompt:** "Search for the best practices for Docker networking"
+**Prompt:** "Search for the latest news on renewable energy"
 
-> Here are the top results for 'best practices for Docker networking'.
-> Result 1: Docker Networking Overview. Docker provides several networking
-> drivers including bridge, host, and overlay — each suited to different
-> use cases.
-> Result 2: Using Bridge Networks in Docker. The default bridge network
-> works for most single-host container communication scenarios.
+> Here are the top results for 'latest news on renewable energy'.
+> Result 1: Global Renewable Energy Capacity Hits Record High. Wind and solar
+> installations surpassed all previous records in the past year, according to
+> the International Energy Agency.
+> Result 2: New Battery Technology Could Transform Energy Storage. Researchers
+> have developed a lithium-free battery that charges in under ten minutes.
 
 ---
 
@@ -73,8 +75,14 @@ The integration exposes two tools your AI assistant can call:
 ### Searches return "temporarily unavailable"
 
 DuckDuckGo occasionally rate-limits requests. Wait a moment and try again.
-If it persists, check the addon log tab for details.
+If it persists, check the addon log tab for the specific error.
+
+### Searches return no results
+
+Some queries may return empty results if DuckDuckGo finds no matches or is
+temporarily unavailable. Try rephrasing the query or trying again shortly.
 
 ### The addon won't start
 
-Check the addon log tab for Python errors.
+Check the addon log tab for Python errors. Ensure port 8766 is not already
+in use by another addon.
