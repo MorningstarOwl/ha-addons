@@ -1,0 +1,39 @@
+name: Memory MCP
+description: >
+  Persistent semantic memory for Home Assistant's AI assistants. Stores
+  preferences, facts, people, routines, and system context across sessions
+  and returns them over an MCP SSE endpoint as plain spoken English — no
+  markdown, no symbols. Fully self-contained with a local embedding model:
+  no Ollama, no API keys, no external services.
+version: "1.0.0"
+slug: memory_mcp
+url: https://github.com/MorningstarOwl/ha-addons/tree/main/memory_mcp
+init: false
+# ChromaDB's ONNX embedding + grpcio transitive deps ship prebuilt wheels
+# only for 64-bit architectures. 32-bit archs are not supported.
+arch:
+  - amd64
+  - aarch64
+
+# Expose SSE endpoint on the LAN
+ports:
+  8755/tcp: 8755
+ports_description:
+  8755/tcp: "MCP SSE endpoint — configure HA with http://homeassistant.local:8755/sse"
+
+# User-configurable options (shown in the addon Configuration tab)
+options:
+  owner_name: ""
+  auto_context_limit: 10
+  max_memories: 2000
+  eviction_batch_size: 10
+  eviction_check_interval_seconds: 3600
+  dedup_similarity_threshold: 0.92
+
+schema:
+  owner_name: str
+  auto_context_limit: int(1,50)
+  max_memories: int(50,100000)
+  eviction_batch_size: int(1,500)
+  eviction_check_interval_seconds: int(60,86400)
+  dedup_similarity_threshold: float(0.0,1.0)
