@@ -5,7 +5,7 @@ description: >
   and returns them over an MCP SSE endpoint as plain spoken English — no
   markdown, no symbols. Fully self-contained with a local embedding model:
   no Ollama, no API keys, no external services.
-version: "1.0.0"
+version: "1.0.1"
 slug: memory_mcp
 url: https://github.com/MorningstarOwl/ha-addons/tree/main/memory_mcp
 init: false

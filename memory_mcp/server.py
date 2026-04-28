@@ -30,6 +30,21 @@ from chromadb.config import Settings
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from mcp.server.fastmcp import FastMCP
 
+# Belt-and-suspenders telemetry kill-switch. ChromaDB 0.5.x has a bug where
+# a handful of telemetry events fire during client startup BEFORE the
+# Settings(anonymized_telemetry=False) flag is honored, and the bundled
+# posthog client's capture() signature has drifted from what chromadb
+# calls — surfacing as harmless but noisy ERROR lines like:
+#     "capture() takes 1 positional argument but 3 were given"
+# We replace Posthog.capture with a no-op so those events silently vanish
+# instead of cluttering the logs. Wrapped in try/except so a future
+# chromadb refactor that moves or renames this class will not crash startup.
+try:
+    from chromadb.telemetry.product.posthog import Posthog as _ChromaPosthog
+    _ChromaPosthog.capture = lambda *_a, **_kw: None
+except Exception:
+    pass
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
