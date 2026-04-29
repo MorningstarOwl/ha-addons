@@ -21,11 +21,15 @@ RUN /usr/local/searxng/.venv/bin/python3 -m venv /opt/mcp \
     && /opt/mcp/bin/pip install --no-cache-dir --upgrade pip \
     && /opt/mcp/bin/pip install --no-cache-dir "mcp[cli]" httpx
 
-# Replace the default SearXNG settings template with our minimal overlay.
-# The upstream entrypoint copies this file to $__SEARXNG_SETTINGS_PATH on
-# first start and substitutes "ultrasecretkey" with a random per-container
-# value via sed. Everything else falls through to upstream defaults.
-COPY rootfs/usr/local/searxng/searx/settings.yml /usr/local/searxng/searx/settings.yml
+# Ship our settings overlay directly at the runtime path. The upstream
+# entrypoint creates /etc/searxng/settings.yml from the package template
+# only when the file doesn't exist, so by COPYing it pre-baked we keep
+# the upstream defaults file (/usr/local/searxng/searx/settings.yml)
+# intact — that file is the SCHEMA SOURCE that `use_default_settings: true`
+# reads at runtime, so replacing it breaks the merge and SearXNG fails to
+# start with `Invalid settings.yml`. run.sh substitutes the placeholder
+# secret_key on each container start.
+COPY --chown=searxng:searxng rootfs/etc/searxng/settings.yml /etc/searxng/settings.yml
 
 # MCP server + supervisor wrapper
 COPY server.py /opt/mcp/server.py

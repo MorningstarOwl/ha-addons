@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.1 — Fix settings overlay path
+
+- 1.3.0 crash-looped on first start with `ValueError: Invalid settings.yml`.
+  Replacing `/usr/local/searxng/searx/settings.yml` with our minimal
+  overlay also clobbered the schema source that `use_default_settings:
+  true` reads at runtime — every key outside our overlay merged as null
+  and SearXNG's `apply_schema` rejected the result.
+- The overlay now ships at `/etc/searxng/settings.yml` (the runtime
+  path) and the upstream defaults file is left untouched. The upstream
+  entrypoint's template-copy branch is skipped because the file already
+  exists, so `run.sh` performs the `ultrasecretkey` substitution itself
+  on each container start.
+
 ## 1.3.0 — Bundled SearXNG (take 2)
 
 - Replaced the `duckduckgo-search` library with a bundled SearXNG instance.

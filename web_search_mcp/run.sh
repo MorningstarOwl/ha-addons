@@ -9,8 +9,11 @@
 #     limiter / bot-detection — we don't want the JSON API reachable from
 #     anywhere else inside the container's network namespace.
 #   - The upstream entrypoint at /usr/local/searxng/entrypoint.sh handles
-#     ownership fixups, settings.yml creation from our template, secret
-#     substitution, and ca-cert refresh — we just delegate to it.
+#     ownership fixups and ca-cert refresh — we delegate to it. We bake
+#     our settings.yml into the image at /etc/searxng/settings.yml, which
+#     means the upstream entrypoint's template-copy + secret-substitution
+#     branch is skipped (it only runs if that file is missing). We do
+#     the secret substitution ourselves below.
 #   - If the MCP server exits, we kill SearXNG so the container exits and
 #     HA Supervisor restarts the whole addon cleanly.
 
@@ -18,6 +21,18 @@ set -eu
 
 export GRANIAN_HOST="127.0.0.1"
 export GRANIAN_PORT="8080"
+
+# Substitute the placeholder secret_key with a fresh random value on each
+# container start. SearXNG refuses to boot with the literal "ultrasecretkey"
+# placeholder. The key only signs CSRF tokens / sessions for an interface
+# that's bound to 127.0.0.1 with no external auth surface, so per-restart
+# rotation is fine.
+SETTINGS_PATH="/etc/searxng/settings.yml"
+if grep -q "ultrasecretkey" "$SETTINGS_PATH" 2>/dev/null; then
+    SECRET=$(head -c 24 /dev/urandom | base64 | tr -d '+/=' | head -c 32)
+    sed -i "s/ultrasecretkey/${SECRET}/g" "$SETTINGS_PATH"
+    echo "[mcp] Generated fresh SearXNG secret_key."
+fi
 
 echo "[mcp] Starting bundled SearXNG (granian on ${GRANIAN_HOST}:${GRANIAN_PORT})..."
 /usr/local/searxng/entrypoint.sh &

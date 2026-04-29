@@ -1,0 +1,32 @@
+# Settings overlay for the bundled SearXNG inside the Web Search MCP addon.
+#
+# This file is COPYed into the image at /etc/searxng/settings.yml — the
+# path the upstream entrypoint uses for the runtime config. Because the
+# file already exists at startup, the entrypoint skips its own template
+# copy + secret substitution; run.sh substitutes "ultrasecretkey" with
+# a fresh random value before launching SearXNG.
+#
+# `use_default_settings: true` pulls everything else (engines list, locales,
+# UI defaults, the full schema, etc.) from the upstream defaults at
+# /usr/local/searxng/searx/settings.yml — keeping this overlay tiny and
+# resilient to upstream changes. Critically, we do NOT replace that
+# defaults file; doing so breaks `use_default_settings` because SearXNG
+# loads its schema defaults from the same package path.
+
+use_default_settings: true
+
+server:
+  secret_key: "ultrasecretkey"   # substituted on startup by run.sh
+  limiter: false                 # only the local MCP wrapper queries this
+  public_instance: false
+  image_proxy: false
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  formats:
+    - html
+    - json                       # required so the MCP wrapper can parse results
+
+ui:
+  static_use_hash: true
