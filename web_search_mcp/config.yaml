@@ -1,10 +1,10 @@
 name: Web Search MCP
 description: >
-  MCP search server for Home Assistant. Uses DuckDuckGo to deliver web search
-  and news search as MCP tools over SSE, returning results as plain spoken
-  English — suitable for Home Assistant Assist and TTS voice pipelines.
+  MCP search server for Home Assistant. Bundles a privacy-respecting
+  SearXNG metasearch instance and exposes web/news search as MCP tools
+  over SSE — suitable for Home Assistant Assist and TTS voice pipelines.
   No external dependencies or configuration required.
-version: "1.2.0"
+version: "1.3.0"
 slug: web_search_mcp
 url: https://github.com/MorningstarOwl/ha-addons/tree/main/web_search_mcp
 init: false
@@ -12,8 +12,6 @@ arch:
   - amd64
   - aarch64
   - armv7
-  - armhf
-  - i386
 
 ports:
   8766/tcp: 8766
@@ -23,7 +21,11 @@ ports_description:
 options:
   max_results: 5
   safe_search: 0
+  language: "all"
+  engines: ""
 
 schema:
   max_results: int(1,10)
   safe_search: list(0|1|2)
+  language: str
+  engines: str

@@ -2,16 +2,17 @@
 Web Search MCP Server
 ---------------------
 Reads options from /data/options.json (injected by HA Supervisor),
-queries DuckDuckGo for web search results, and returns them as plain
-spoken English suitable for TTS read-back.
+queries the bundled SearXNG instance on 127.0.0.1:8080, and returns
+results as plain spoken English suitable for TTS read-back.
 
 MCP SSE endpoint: http://homeassistant.local:8766/sse
 """
 
 import json
 import logging
+import os
 
-from duckduckgo_search import DDGS
+import httpx
 from mcp.server.fastmcp import FastMCP
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -19,8 +20,8 @@ log = logging.getLogger(__name__)
 
 OPTIONS_FILE = "/data/options.json"
 PORT = 8766
-
-SAFE_SEARCH_MAP = {0: "off", 1: "moderate", 2: "on"}
+SEARXNG_URL = os.environ.get("SEARXNG_URL", "http://127.0.0.1:8080")
+REQUEST_TIMEOUT = 15.0
 
 
 # ---------------------------------------------------------------------------
@@ -38,7 +39,33 @@ def load_options() -> dict:
 
 options = load_options()
 MAX_RESULTS: int = int(options.get("max_results", 5))
-SAFE_SEARCH: str = SAFE_SEARCH_MAP.get(int(options.get("safe_search", 0)), "off")
+SAFE_SEARCH: int = int(options.get("safe_search", 0))
+LANGUAGE: str = (options.get("language") or "all").strip() or "all"
+ENGINES: list[str] = [
+    e.strip() for e in (options.get("engines") or "").split(",") if e.strip()
+]
+
+
+# ---------------------------------------------------------------------------
+# SearXNG client
+# ---------------------------------------------------------------------------
+
+def _searxng_request(query: str, category: str = "general") -> list[dict]:
+    """Hit the local SearXNG JSON API and return the `results` list."""
+    params = {
+        "q": query,
+        "format": "json",
+        "safesearch": SAFE_SEARCH,
+        "language": LANGUAGE,
+        "categories": category,
+    }
+    if ENGINES:
+        params["engines"] = ",".join(ENGINES)
+
+    with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+        r = client.get(f"{SEARXNG_URL}/search", params=params)
+        r.raise_for_status()
+        return r.json().get("results", []) or []
 
 
 # ---------------------------------------------------------------------------
@@ -46,15 +73,16 @@ SAFE_SEARCH: str = SAFE_SEARCH_MAP.get(int(options.get("safe_search", 0)), "off"
 # ---------------------------------------------------------------------------
 
 def results_to_spoken(results: list[dict], query: str) -> str:
-    """Convert search result dicts into a concise spoken-English summary."""
+    """Convert SearXNG result dicts into a concise spoken-English summary."""
     if not results:
         return f"I couldn't find any results for '{query}'."
 
     lines: list[str] = [f"Here are the top results for '{query}'."]
 
     for i, r in enumerate(results[:MAX_RESULTS], start=1):
-        title = r.get("title", "").strip()
-        content = r.get("body", "").strip()
+        title = (r.get("title") or "").strip()
+        # SearXNG returns the snippet under "content" (DDG used "body")
+        content = (r.get("content") or "").strip()
 
         if content:
             for sep in (".", "!", "?"):
@@ -85,15 +113,15 @@ mcp = FastMCP("Web Search MCP Server", host="0.0.0.0", port=PORT)
 @mcp.tool()
 def search(query: str) -> str:
     """
-    Search the web using DuckDuckGo and return results as a natural
-    spoken-English summary, suitable for voice read-back.
+    Search the web via the bundled SearXNG instance and return results
+    as a natural spoken-English summary, suitable for voice read-back.
 
     Args:
         query: The search query string.
     """
     log.info(f"Searching for: {query!r}")
     try:
-        results = DDGS().text(query, max_results=MAX_RESULTS, safesearch=SAFE_SEARCH)
+        results = _searxng_request(query, category="general")
     except Exception as e:
         log.error(f"Search failed: {e}")
         return "Search is temporarily unavailable. Please try again in a moment."
@@ -105,15 +133,15 @@ def search(query: str) -> str:
 @mcp.tool()
 def search_news(query: str) -> str:
     """
-    Search for recent news using DuckDuckGo and return results as a
-    natural spoken-English summary.
+    Search recent news via the bundled SearXNG instance and return results
+    as a natural spoken-English summary.
 
     Args:
         query: The news search query string.
     """
     log.info(f"Searching news for: {query!r}")
     try:
-        results = DDGS().news(query, max_results=MAX_RESULTS, safesearch=SAFE_SEARCH)
+        results = _searxng_request(query, category="news")
     except Exception as e:
         log.error(f"News search failed: {e}")
         return "News search is temporarily unavailable. Please try again in a moment."
@@ -127,6 +155,10 @@ def search_news(query: str) -> str:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    log.info(f"Max results: {MAX_RESULTS} | Safe search: {SAFE_SEARCH}")
+    log.info(
+        f"SearXNG: {SEARXNG_URL} | max_results={MAX_RESULTS} "
+        f"safesearch={SAFE_SEARCH} lang={LANGUAGE} "
+        f"engines={','.join(ENGINES) if ENGINES else 'default'}"
+    )
     log.info(f"Starting Web Search MCP SSE server on port {PORT}...")
     mcp.run(transport="sse")

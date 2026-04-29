@@ -1,0 +1,28 @@
+# Settings overlay for the bundled SearXNG inside the Web Search MCP addon.
+#
+# This file replaces the upstream default settings template at
+# /usr/local/searxng/searx/settings.yml. The upstream entrypoint copies it
+# to $__SEARXNG_CONFIG_PATH/settings.yml on first start and substitutes
+# "ultrasecretkey" with a random per-container value via sed.
+#
+# `use_default_settings: true` pulls everything else (engines list, locales,
+# UI defaults, etc.) from the bundled defaults — keeping this overlay tiny
+# and resilient to upstream changes.
+
+use_default_settings: true
+
+server:
+  secret_key: "ultrasecretkey"   # substituted on first start by entrypoint
+  limiter: false                 # only the local MCP wrapper queries this
+  public_instance: false
+  image_proxy: false
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  formats:
+    - html
+    - json                       # required so the MCP wrapper can parse results
+
+ui:
+  static_use_hash: true
