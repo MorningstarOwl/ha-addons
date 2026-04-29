@@ -18,10 +18,22 @@ See [weather_mcp/DOCS.md](weather_mcp/DOCS.md) for full setup instructions.
 
 ### Web Search MCP
 
-An MCP search addon that uses DuckDuckGo to deliver web and news search
-as plain spoken English — no markdown, no symbols, no external dependencies.
+A privacy-respecting MCP search addon. Bundles a SearXNG metasearch instance
+inside the container and exposes web and news search as plain spoken English
+over SSE — no API keys, no external services, no rate-limit games. Drop it
+in, point Home Assistant at the SSE endpoint, and Assist can search the web.
 
 See [web_search_mcp/DOCS.md](web_search_mcp/DOCS.md) for full setup instructions.
+
+### Memory MCP
+
+A persistent, semantically searchable long-term memory for Home Assistant's
+AI assistants. Stores preferences, facts, people, and routines, and recalls
+them by meaning across restarts and updates. Fully self-contained —
+embeddings run locally inside the addon using ChromaDB's bundled
+`all-MiniLM-L6-v2` model. No Ollama, no API keys, no external services.
+
+See [memory_mcp/DOCS.md](memory_mcp/DOCS.md) for full setup instructions.
 
 ---
 
