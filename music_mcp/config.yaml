@@ -1,0 +1,30 @@
+name: Music MCP
+description: >
+  Voice-friendly music playback MCP server backed by Music Assistant.
+  Exposes a small, opinionated tool set so a voice assistant can play
+  music without picking the wrong device or getting confused by Music
+  Assistant's dual-entity setup. Returns confirmations as plain spoken
+  English — no markdown, no symbols.
+version: "0.1.0"
+slug: music_mcp
+url: https://github.com/MorningstarOwl/ha-addons/tree/main/music_mcp
+init: false
+arch:
+  - amd64
+  - aarch64
+
+# Expose SSE endpoint on the LAN
+ports:
+  8767/tcp: 8767
+ports_description:
+  8767/tcp: "MCP SSE endpoint — configure HA with http://homeassistant.local:8767/sse"
+
+# Grants SUPERVISOR_TOKEN so the server can call HA services
+hassio_api: true
+
+# User-configurable options (shown in the addon Configuration tab)
+options:
+  default_speaker: ""
+
+schema:
+  default_speaker: str

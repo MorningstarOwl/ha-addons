@@ -35,6 +35,17 @@ embeddings run locally inside the addon using ChromaDB's bundled
 
 See [memory_mcp/DOCS.md](memory_mcp/DOCS.md) for full setup instructions.
 
+### Music MCP
+
+A voice-friendly music playback MCP server backed by Music Assistant.
+Gives a voice assistant one opinionated tool for playing music — no raw
+`media_player` entities to choose between, no chance of picking the Roku
+TV instead of the speaker you meant. Phase 1 ships a single `play_music`
+tool with a hardcoded default speaker; later phases add playback control,
+volume, "what's playing," and multi-room with friendly speaker names.
+
+See [music_mcp/DOCS.md](music_mcp/DOCS.md) for full setup instructions.
+
 ---
 
 ## Installation
