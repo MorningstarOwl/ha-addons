@@ -5,7 +5,7 @@ description: >
   music without picking the wrong device or getting confused by Music
   Assistant's dual-entity setup. Returns confirmations as plain spoken
   English — no markdown, no symbols.
-version: "0.1.0"
+version: "0.1.1"
 slug: music_mcp
 url: https://github.com/MorningstarOwl/ha-addons/tree/main/music_mcp
 init: false
@@ -19,8 +19,11 @@ ports:
 ports_description:
   8767/tcp: "MCP SSE endpoint — configure HA with http://homeassistant.local:8767/sse"
 
-# Grants SUPERVISOR_TOKEN so the server can call HA services
-hassio_api: true
+# Authorizes SUPERVISOR_TOKEN against HA Core's REST API
+# (http://supervisor/core/api/*). Required for calling music_assistant
+# services. NOT the same as hassio_api, which authorizes calls to the
+# Supervisor's own API.
+homeassistant_api: true
 
 # User-configurable options (shown in the addon Configuration tab)
 options:
