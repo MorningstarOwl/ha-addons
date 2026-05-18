@@ -85,7 +85,57 @@ the tool will use the default speaker.
 
 | Option | Default | Description |
 |---|---|---|
-| `default_speaker` | `""` | The entity_id of the Music Assistant queue entity to use when the assistant does not specify a speaker. Must end in `_2` — the `_2` suffix marks the MA queue overlay, which supports next/previous and full queue control. The base LVA entity (without `_2`) does not. |
+| `default_speaker` | `""` | The entity_id of the Music Assistant queue entity to use when no speaker is specified. Must end in `_2` — the `_2` suffix marks the MA queue overlay, which supports next/previous and full queue control. The base LVA entity (without `_2`) does not. |
+| `speaker_aliases` | `[]` | A list of `{name, entity_id}` pairs that let the voice assistant refer to speakers by a short friendly name instead of a full entity_id. See **Speaker aliases** below. |
+
+### Finding the right entity_id
+
+When the addon starts it queries Home Assistant and logs every Music
+Assistant queue entity it finds:
+
+```
+INFO: Discovered 2 Music Assistant speaker(s):
+INFO:   1. media_player.exr1_speaker_media_player_2
+INFO:   2. media_player.kitchen_speaker_media_player_2
+```
+
+Open **Settings → Add-ons → Music MCP → Log** right after starting the
+addon and copy the entity_id you want into `default_speaker`.
+
+### Speaker aliases
+
+Aliases let you map a short name to a speaker entity_id so the voice
+assistant can say "play X in the kitchen" and the addon routes it
+correctly without the LLM needing to know entity_ids.
+
+Example configuration:
+
+```yaml
+speaker_aliases:
+  - name: office
+    entity_id: media_player.exr1_speaker_media_player_2
+  - name: kitchen
+    entity_id: media_player.kitchen_speaker_media_player_2
+```
+
+The `name` field is case-insensitive. The `entity_id` must be the full
+`media_player.*_2` entity, same as `default_speaker`.
+
+### Per-satellite system prompt (routing by room)
+
+To make each voice satellite automatically play on the speaker in its
+room, add one line to that satellite's pipeline system prompt:
+
+**Settings → Voice Assistants → (your pipeline) → Conversation agent**
+
+```
+When asked to play music and the user does not specify a room, use speaker "office".
+```
+
+Replace `"office"` with the alias name for the room that satellite lives
+in. When the user *does* name a room ("play X in the kitchen"), the LLM
+will pass `speaker="kitchen"` and the alias map routes it to the right
+entity automatically.
 
 ## What `play_music` does
 
