@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.2 — Pin the MCP SDK below 2.x
+
+- No behaviour change. `mcp[cli]` was installed unpinned, and MCP Python
+  SDK 2.0 renamed `FastMCP` to `mcp.server.mcpserver.MCPServer` and turned
+  `mcp.server.fastmcp` into a stub that raises `ModuleNotFoundError`. The
+  running container is unaffected because it was built against 1.x, but the
+  next rebuild would have resolved `mcp` to 2.x and crashed `server.py` at
+  import. Now pinned to `mcp[cli]>=1.9,<2`.
+- Migrating to the 2.x API is tracked separately; it touches every MCP
+  add-on in this repo.
+
 ## 1.3.1 — Fix settings overlay path
 
 - 1.3.0 crash-looped on first start with `ValueError: Invalid settings.yml`.

@@ -17,9 +17,17 @@ USER root
 # Build an isolated venv for the MCP server using the Python that already
 # ships in the SearXNG venv. Avoids depending on system Python in the
 # minimal base image, and keeps our deps separate from SearXNG's deps.
+#
+# mcp is pinned below 2.x on purpose. The MCP Python SDK 2.0 renamed FastMCP to
+# mcp.server.mcpserver.MCPServer and turned mcp.server.fastmcp into a stub that
+# raises ModuleNotFoundError, so `from mcp.server.fastmcp import FastMCP` in
+# server.py fails at import on 2.x. This dependency used to be unpinned, which
+# meant the next rebuild -- and a version bump forces a rebuild -- would have
+# resolved mcp to 2.x and produced an add-on that crashed before it could serve.
+# Migrating to the 2.x API is a separate job across every add-on in this repo.
 RUN /usr/local/searxng/.venv/bin/python3 -m venv /opt/mcp \
     && /opt/mcp/bin/pip install --no-cache-dir --upgrade pip \
-    && /opt/mcp/bin/pip install --no-cache-dir "mcp[cli]" httpx
+    && /opt/mcp/bin/pip install --no-cache-dir "mcp[cli]>=1.9,<2" httpx
 
 # Ship our settings overlay directly at the runtime path. The upstream
 # entrypoint creates /etc/searxng/settings.yml from the package template

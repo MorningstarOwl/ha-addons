@@ -3,7 +3,7 @@ description: >
   Voice-friendly weather MCP server using OpenWeatherMap.
   Exposes an SSE endpoint for Home Assistant's MCP integration,
   returning forecasts as plain spoken English — no markdown, no symbols.
-version: "1.2.0"
+version: "1.2.1"
 slug: weather_mcp
 url: https://github.com/MorningstarOwl/ha-addons/tree/main/weather_mcp
 init: false
