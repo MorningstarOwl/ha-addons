@@ -1,11 +1,13 @@
 name: Music MCP
 description: >
-  Voice-friendly music playback MCP server backed by Music Assistant.
-  Exposes a small, opinionated tool set so a voice assistant can play
-  music without picking the wrong device or getting confused by Music
-  Assistant's dual-entity setup. Returns confirmations as plain spoken
-  English — no markdown, no symbols.
-version: "0.1.2"
+  Voice-friendly MCP server for playing a local music library through
+  Music Assistant. Searches the library, plays the resolved item, and
+  names what it actually found — so an assistant can answer open-ended
+  music requests without inventing streaming-shaped queries the library
+  cannot match. Intended as the fallback path for requests a local
+  sentence trigger cannot handle. Returns plain spoken English — no
+  markdown, no symbols.
+version: "0.2.0"
 slug: music_mcp
 url: https://github.com/MorningstarOwl/ha-addons/tree/main/music_mcp
 init: false
@@ -31,7 +33,10 @@ options:
   speaker_aliases: []
 
 schema:
-  default_speaker: str
+  # Optional: when Music Assistant exposes exactly one player, the add-on
+  # discovers it and says so in the log. Set this only to override that, or
+  # when there is more than one player to choose between.
+  default_speaker: str?
   speaker_aliases:
     - name: str
       entity_id: str
